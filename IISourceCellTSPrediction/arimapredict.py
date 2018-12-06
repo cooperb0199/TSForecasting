@@ -67,7 +67,7 @@ class ArimaPredict:
         predictions = pd.Series('close', index=dateRange)
         f = open(f"Visualizations/{filename}_prediction.txt", "w+")
         for t in range(len(test)):
-            	model = ARIMA(history, order=(1,1,0))
+            	model = ARIMA(history, order=(0,0,1))
             	model_fit = model.fit(disp=0)
             	output = model_fit.forecast()
             	yhat = output[0]
@@ -85,13 +85,10 @@ class ArimaPredict:
         print('Test MSE: %.3f' % error)
         f.write('Test MSE: %.3f' % error)
         print('Test RMSE: %.3f' % rmse)
-        f.write('Test RMSE: %.3f' % rmse1)
+        f.write('Test RMSE: %.3f' % rmse)
         f.close()
         # plot
         plt.plot(test, color='black')
         plt.plot(predictions, color='red')
         plt.savefig(f'Visualizations/{filename}predictvsactual.png')
         plt.clf()
-        
-        
-        
