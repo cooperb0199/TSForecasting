@@ -1,0 +1,4 @@
+- Come up with a proper assessment of which ARIMA model fits the dataset 
+the best.
+
+- Complete Report template

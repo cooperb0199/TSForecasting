@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 
 
-
+    
 
 class Arima:
     def __init__(self, timeseries):
@@ -54,3 +54,35 @@ class Arima:
         plt.clf()
         print(residuals.describe())
         
+    @staticmethod
+    def makeprediction(train, test, filename, lag, diff, ma):
+        history = [x for x in train]
+        dateRange = pd.date_range('2016-01-14', periods=1042, freq='D')
+        predictions = pd.Series('close', index=dateRange)
+        f = open(f"Visualizations/{filename}_prediction.txt", "w+")
+        for t in range(len(test)):
+            	model = ARIMA(history, order=(lag,diff,ma))
+            	model_fit = model.fit(disp=0)
+            	output = model_fit.forecast()
+            	yhat = output[0]
+            	predictions[t] = yhat
+            	obs = test[t]
+            	history.append(obs)
+            	print('predicted=%f, expected=%f\n' % (yhat, obs))
+            	f.write('predicted=%f, expected=%f\n' % (yhat, obs))
+
+        error = mean_squared_error(test, predictions)
+        rmse = sqrt(error)
+        testArray = np.array(test.astype(np.int))
+        predArray = np.round(predictions.astype(np.int))
+        accuracy = accuracy_score(testArray, predArray)
+        print('Test MSE: %.3f' % error)
+        f.write('Test MSE: %.3f' % error)
+        print('Test RMSE: %.3f' % rmse)
+        f.write('Test RMSE: %.3f' % rmse)
+        f.close()
+        # plot
+        plt.plot(test, color='black')
+        plt.plot(predictions, color='red')
+        plt.savefig(f'Visualizations/{filename}predictvsactual.png')
+        plt.clf()

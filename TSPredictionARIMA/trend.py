@@ -105,3 +105,14 @@ class Trend:
         autocorrelation_plot(ts)
         plt.savefig('Visualizations/ac.png')
         plt.clf()
+        
+    def testStationarity(self, ts):
+        rolstd = ts.rolling(window=128).std()
+        orig = plt.plot(ts,color='blue',label='Original')
+        mean = plt.plot(self.findMovingAvg(ts),color='red',label='Rolling Mean')
+        std = plt.plot(rolstd,color='black',label='Rolling std')
+        plt.legend(loc='best')
+        plt.title('Rolling mean & Standard Deviation')
+        plt.show(block=False)
+        
+

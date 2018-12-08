@@ -2,12 +2,12 @@
 from statsmodels.tsa.arima_model import ARIMA
 from sklearn.metrics import mean_squared_error
 from sklearn.metrics import accuracy_score
-from tsfactory import TSDF_Factory
 from math import sqrt
-
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
+
+from tsfactory import TSDF_Factory
 
 
 class ArimaPredict:
