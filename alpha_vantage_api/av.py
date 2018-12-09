@@ -63,8 +63,3 @@ class AV:
         data.to_csv(f'../repositories/av_repo/{ticker}DailyStats.csv', sep=',')
         
         
-
-        
-
-av = AV()
-av.pull_data('GOOGL')
