@@ -19,7 +19,7 @@ class AV:
     apiKeys = {}
     
     def __init__(self):
-        keyfile = open("../miscellaneous/api_keys.txt")
+        keyfile = open("miscellaneous/api_keys.txt")
         content = keyfile.readlines()
         for item in content:
             lines = item.split(":")
@@ -33,11 +33,11 @@ class AV:
         Provide the stock ticker to pull
         data for the desired stock.
         """
-        if os.path.isfile(f"../miscellaneous/lastRun{ticker}.txt") == True:
-            file = open(f"../miscellaneous/lastRun{ticker}.txt", "a+")
-            fileread = open(f"../miscellaneous/lastRun{ticker}.txt", "r+")
+        if os.path.isfile(f"miscellaneous/lastRun{ticker}.txt") == True:
+            file = open(f"miscellaneous/lastRun{ticker}.txt", "a+")
+            fileread = open(f"miscellaneous/lastRun{ticker}.txt", "r+")
         else:
-            file = open(f"../miscellaneous/lastRun{ticker}.txt", "w+")
+            file = open(f"miscellaneous/lastRun{ticker}.txt", "w+")
         contents = fileread.readlines()
         currentDate = datetime.datetime.now()
         contentCount = len(contents)

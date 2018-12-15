@@ -26,7 +26,7 @@ class TSDF_Factory:
     def createTSTT(self):
         """Creates a training and test set on data
         """
-        data = self.createTSDF(self.ticker)
+        data = self.createTSDF()
         size = int(len(data) * 0.80)
         train, test = data[0:size], data[size:len(data)]
         return train, test

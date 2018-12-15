@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
-from arima import ARIMA
+import numpy as np
+import matplotlib.pyplot as plt
+import pandas as pd
+
 from statsmodels.tsa.seasonal import seasonal_decompose
 from statsmodels.tsa.stattools import acf, pacf
 from pandas.tools.plotting import autocorrelation_plot
 
-
-import numpy as np
-import matplotlib.pyplot as plt
-import pandas as pd
+from ts_arima.arima import ARIMA
 
 
 class Trend:
@@ -20,14 +20,14 @@ class Trend:
     
     def logtransform(self):
         plt.plot(self.ts_log)
-        plt.savefig('Visualizations/logTransform.png')
+        plt.savefig('ts_arima/Visualizations/logTransform.png')
         plt.clf()
 
     def findMovingAvg(self, ts):
         moving_avg = pd.Series(ts).rolling(window=128).mean()
         plt.plot(ts)
         plt.plot(moving_avg, color='red')
-        plt.savefig('Visualizations/movingAvg.png')
+        plt.savefig('ts_arima/Visualizations/movingAvg.png')
         plt.clf()
         return moving_avg
         
@@ -42,14 +42,14 @@ class Trend:
         expwighted_avg = pd.Series(self.ts_log).ewm(halflife=200).mean()
         plt.plot(self.ts_log, color='blue')
         plt.plot(expwighted_avg, color='red')
-        plt.savefig('Visualizations/ewma.png')
+        plt.savefig('ts_arima/Visualizations/ewma.png')
         plt.clf()
         ts_log_ewma_diff = self.ts_log - expwighted_avg
         ARIMA.test_stationary(self, ts_log_ewma_diff)
         
     def differencing(self):
         plt.plot(self.ts_log_diff)
-        plt.savefig('Visualizations/diff.png')
+        plt.savefig('ts_arima/Visualizations/diff.png')
         plt.clf()
         self.ts_log_diff.dropna(inplace=True)
         ARIMA.test_stationary(self, self.ts_log_diff)
@@ -73,7 +73,7 @@ class Trend:
         plt.plot(residual, label='Residuals')
         plt.legend(loc='best')
         plt.tight_layout()
-        plt.savefig('Visualizations/decompose.png')
+        plt.savefig('ts_arima/Visualizations/decompose.png')
         plt.clf()
         ts_log_decompose = residual
         ts_log_decompose.dropna(inplace=True)
@@ -98,12 +98,12 @@ class Trend:
         plt.axhline(y=1.96/np.sqrt(len(self.ts_log_diff)),linestyle='--',color='gray')
         plt.title('Partial Autocorrelation Function')
         plt.tight_layout()
-        plt.savefig('Visualizations/pacf.png')
+        plt.savefig('ts_arima/Visualizations/pacf.png')
         plt.clf()
         
     def findac(self, ts):
         autocorrelation_plot(ts)
-        plt.savefig('Visualizations/ac.png')
+        plt.savefig('ts_arima/Visualizations/ac.png')
         plt.clf()
         
     def testStationarity(self, ts):

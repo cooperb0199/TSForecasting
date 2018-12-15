@@ -7,7 +7,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 
-from tsfactory import TSDF_Factory
+from ts_arima.tsfactory import TSDF_Factory
 
 
 class ArimaPredict:

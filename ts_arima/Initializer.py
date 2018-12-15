@@ -2,10 +2,12 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 
-from tsfactory import TSDF_Factory
-from arima import Arima
-from trend import Trend
-from arimapredict import ArimaPredict
+from ts_arima.arima import Arima
+from ts_arima.arimapredict import ArimaPredict
+from ts_arima.trend import Trend
+from ts_analytics.dickey_fuller import DF
+from ts_analytics.rolling_stats import RollingStats
+from ts_arima.tsfactory import TSDF_Factory
 
 
 diffModels = {
@@ -20,9 +22,9 @@ ticker = 'GOOGL'
 
 
 
-factory = TSDF_Factory()
-data = factory.createTSDF(ticker)
-train, test = factory.createTSTT(ticker)
+factory = TSDF_Factory(ticker)
+data = factory.createTSDF()
+train, test = factory.createTSTT()
 ctrain = train['close']
 ctest = test['close']
 
@@ -30,15 +32,22 @@ ctest = test['close']
 ctrain = ctrain.interpolate(method='linear')
 ctest = ctest.interpolate(method='linear')
 
-
-#ArimaPredict.makeprediction(ctrain, ctest,'ses_woconstant')
-trend = Trend(data['close'])
-trend.testStationarity(data['close'])
-#trend.findac(ctrain)
-
 # Line graph of google stock over time
 plt.plot(data['close'])
-plt.savefig('Visualizations/google_close.png')
+plt.savefig('ts_arima/Visualizations/google_close.png')
+
+# Create graph with rolling mean and standard deviation
+rollingStats = RollingStats()
+rollingStats.find_rolling(data['close'])
+
+# Dickey Fuller Test performed
+df = DF()
+df.perf_df_test(data['close'])
+
+# Estimating Trend
+trend = Trend(data['close'])
+trend.logtransform()
+
 
 for item in diffModels.keys():
     Arima.makeprediction(ctrain, ctest, item, diffModels[item][0], diffModels[item][1], diffModels[item][2])

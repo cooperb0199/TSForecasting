@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from statsmodels.tsa.stattools import adfuller
 from matplotlib.pylab import rcParams
-from tsfactory import TSDF_Factory
+from ts_arima.tsfactory import TSDF_Factory
 from statsmodels.tsa.arima_model import ARIMA
 from pandas import DataFrame
 
@@ -28,7 +28,7 @@ class Arima:
         plt.legend(loc = "best")
         plt.title("Rolling Mean and Standard Deviation")
         #plt.show(block = False)
-        plt.savefig("Visualizations/ARIMA.png")
+        plt.savefig("ts_arima/Visualizations/ARIMA.png")
         plt.clf()
         #Perform Dickey Fuller test
         print("Results of Dickey Fuller test: ")
@@ -47,10 +47,10 @@ class Arima:
         # plot residual errors
         residuals = DataFrame(model_fit.resid)
         residuals.plot()
-        plt.savefig('Visualizations/residError.png')
+        plt.savefig('ts_arima/Visualizations/residError.png')
         plt.clf()
         residuals.plot(kind='kde')
-        plt.savefig('Visualizations/redensity.png')
+        plt.savefig('ts_arima/Visualizations/redensity.png')
         plt.clf()
         print(residuals.describe())
         
@@ -59,7 +59,7 @@ class Arima:
         history = [x for x in train]
         dateRange = pd.date_range('2016-01-14', periods=1042, freq='D')
         predictions = pd.Series('close', index=dateRange)
-        f = open(f"Visualizations/{filename}_prediction.txt", "w+")
+        f = open(f"ts_arima/Visualizations/{filename}_prediction.txt", "w+")
         for t in range(len(test)):
             	model = ARIMA(history, order=(lag,diff,ma))
             	model_fit = model.fit(disp=0)
@@ -84,5 +84,5 @@ class Arima:
         # plot
         plt.plot(test, color='black')
         plt.plot(predictions, color='red')
-        plt.savefig(f'Visualizations/{filename}predictvsactual.png')
+        plt.savefig(f'ts_arima/Visualizations/{filename}predictvsactual.png')
         plt.clf()
