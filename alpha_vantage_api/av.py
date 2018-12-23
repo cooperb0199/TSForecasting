@@ -24,8 +24,8 @@ class AV:
         for item in content:
             lines = item.split(":")
             self.apiKeys[lines[0]] = lines[1]
-        if os.path.isdir('../repositories/av_repo') == False:
-            os.makedirs('../repositories/av_repo')
+        if os.path.isdir('repositories/av_repo') == False:
+            os.makedirs('repositories/av_repo')
     
     def pull_data(self, ticker):
         """Pull data from either csv or API
@@ -35,9 +35,9 @@ class AV:
         """
         if os.path.isfile(f"miscellaneous/lastRun{ticker}.txt") == True:
             file = open(f"miscellaneous/lastRun{ticker}.txt", "a+")
-            fileread = open(f"miscellaneous/lastRun{ticker}.txt", "r+")
         else:
             file = open(f"miscellaneous/lastRun{ticker}.txt", "w+")
+        fileread = open(f"miscellaneous/lastRun{ticker}.txt", "r+")
         contents = fileread.readlines()
         currentDate = datetime.datetime.now()
         contentCount = len(contents)
@@ -57,9 +57,9 @@ class AV:
         """Pull stock information from API
         """
         ts = TimeSeries(key=self.apiKeys['av'], output_format='pandas')
+        test = os.getcwd()
+        print(test)
         # Get json object with the intraday data and another with  the call's metadata
-        data, meta_data = ts.get_daily('GOOGL', outputsize='full')
+        data, meta_data = ts.get_daily(ticker, outputsize='full')
         data.columns = ['open','high','low','close','volume']
-        data.to_csv(f'../repositories/av_repo/{ticker}DailyStats.csv', sep=',')
-        
-        
+        data.to_csv(f'repositories/av_repo/{ticker}DailyStats.csv', sep=',')

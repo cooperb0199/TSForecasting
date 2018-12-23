@@ -18,7 +18,7 @@ diffModels = {
 }
 
 
-ticker = 'GOOGL'
+ticker = 'UPS'
 
 
 
@@ -34,10 +34,10 @@ ctest = ctest.interpolate(method='linear')
 
 # Line graph of google stock over time
 plt.plot(data['close'])
-plt.savefig('ts_arima/Visualizations/google_close.png')
+plt.savefig(f'ts_arima/Visualizations/{ticker}_close.png')
 
 # Create graph with rolling mean and standard deviation
-rollingStats = RollingStats()
+rollingStats = RollingStats(ticker)
 rollingStats.find_rolling(data['close'])
 
 # Dickey Fuller Test performed
@@ -45,12 +45,33 @@ df = DF()
 df.perf_df_test(data['close'])
 
 # Estimating Trend
-trend = Trend(data['close'])
+trend = Trend(data['close'], ticker)
 trend.logtransform()
 
+# Create graph with rolling mean and standard deviation
+rollingStats = RollingStats(ticker)
+rollingStats.find_rolling(trend.ts_log, 'log')
 
-for item in diffModels.keys():
-    Arima.makeprediction(ctrain, ctest, item, diffModels[item][0], diffModels[item][1], diffModels[item][2])
+logMinusMovingAvg = trend.ts_log - rollingStats.rolmean
+logMinusMovingAvg.dropna(inplace=True)
+
+# Perform Dickey Fuller Test on log minus moving avg dataset
+df.perf_df_test(logMinusMovingAvg)
+rollingStats.find_rolling(logMinusMovingAvg, 'logMA')
+
+
+# Find the exponential weighted moving avg
+expweighted_avg = trend.ewma()
+logMinusEWMA = trend.ts_log - expweighted_avg
+logMinusEWMA.dropna(inplace=True)
+
+# Perform Dickey Fuller Test on log minus moving avg dataset
+df.perf_df_test(logMinusEWMA)
+rollingStats.find_rolling(logMinusEWMA, 'logEWMA')
+
+
+#for item in diffModels.keys():
+#    Arima.makeprediction(ctrain, ctest, item, diffModels[item][0], diffModels[item][1], diffModels[item][2])
 
 
 #arimaModel = Arima(dailyClosing)

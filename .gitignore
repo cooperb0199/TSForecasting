@@ -1,2 +1,5 @@
 miscellaneous/
 repositories/av_repo/
+ts_analytics/Visualizations/
+ts_arima/Visualizations/
+ts_arima/ts_analytics/Visualizations/

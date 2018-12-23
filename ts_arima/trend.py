@@ -12,11 +12,12 @@ from ts_arima.arima import ARIMA
 
 class Trend:
     
-    def __init__(self, ts):
+    def __init__(self, ts, ticker):
         self.ts = ts
         self.ts_log = np.log(self.ts)
         self.ts_log_diff = self.ts_log - self.ts_log.shift()
         self.ts_log_diff.dropna(inplace=True)
+        self.ticker = ticker
     
     def logtransform(self):
         plt.plot(self.ts_log)
@@ -39,13 +40,14 @@ class Trend:
         ARIMA.test_stationary(self, ts_log_moving_avg_diff)
         
     def ewma(self):
-        expwighted_avg = pd.Series(self.ts_log).ewm(halflife=200).mean()
+        expweighted_avg = pd.Series(self.ts_log).ewm(halflife=365).mean()
         plt.plot(self.ts_log, color='blue')
-        plt.plot(expwighted_avg, color='red')
-        plt.savefig('ts_arima/Visualizations/ewma.png')
+        plt.plot(expweighted_avg, color='red')
+        plt.savefig(f'ts_arima/Visualizations/{self.ticker}ewma.png')
         plt.clf()
-        ts_log_ewma_diff = self.ts_log - expwighted_avg
-        ARIMA.test_stationary(self, ts_log_ewma_diff)
+        return expweighted_avg
+#        ts_log_ewma_diff = self.ts_log - expwighted_avg
+#        ARIMA.test_stationary(self, ts_log_ewma_diff)
         
     def differencing(self):
         plt.plot(self.ts_log_diff)

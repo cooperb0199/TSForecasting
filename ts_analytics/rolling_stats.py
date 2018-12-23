@@ -7,19 +7,23 @@ rcParams['figure.figsize'] = 10, 6
 
 
 class RollingStats:
+    def __init__(self, ticker):
+        self.ticker = ticker
     
-    def find_rolling(self, ts):
-        rolmean = ts.rolling(window=365).mean()
-        rolstd = ts.rolling(window=365).std()
+    def find_rolling(self, ts, name=''):
+        self.rolmean = ts.rolling(window=365).mean()
+        self.rolstd = ts.rolling(window=365).std()
         plt.clf()
         orig = plt.plot(ts, color='blue', label='Original')
-        mean = plt.plot(rolmean, color='red', label='Mean')
-        std = plt.plot(rolstd, color='black', label='Standard Deviation')
+        mean = plt.plot(self.rolmean, color='red', label='Mean')
+        std = plt.plot(self.rolstd, color='black', label='Standard Deviation')
 #        plt.legend(loc='best')
         plt.title('Rolling Mean & Standard Deviation')
         if os.path.isdir('ts_analytics/Visualizations') == False:
             os.makedirs('ts_analytics/Visualizations')
-        plt.savefig('ts_analytics/Visualizations/rolling.png', block=False)
+        if os.path.isdir(f'ts_analytics/Visualizations/{self.ticker}') == False:
+            os.makedirs(f'ts_analytics/Visualizations/{self.ticker}')
+        plt.savefig(f'ts_analytics/Visualizations/{self.ticker}/rolling{name}.png', block=False)
         plt.clf()
         
     def get_cwd(self):
