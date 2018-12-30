@@ -8,7 +8,7 @@ from statsmodels.tsa.stattools import acf, pacf
 from pandas.tools.plotting import autocorrelation_plot
 
 from ts_arima.arima import ARIMA
-
+from utils.dir_generator import DirGen
 
 class Trend:
     
@@ -58,28 +58,29 @@ class Trend:
         
     def decompose(self):
         decomposition = seasonal_decompose(self.ts_log, freq=365)
-        trend = decomposition.trend
-        seasonal = decomposition.seasonal
-        residual = decomposition.resid
+        self.trend = decomposition.trend
+        self.seasonal = decomposition.seasonal
+        self.residual = decomposition.resid
         
         plt.subplot(411)
         plt.plot(self.ts_log, label='Original')
         plt.legend(loc='best')
         plt.subplot(412)
-        plt.plot(trend, label='Trend')
+        plt.plot(self.trend, label='Trend')
         plt.legend(loc='best')
         plt.subplot(413)
-        plt.plot(seasonal,label='Seasonality')
+        plt.plot(self.seasonal,label='Seasonality')
         plt.legend(loc='best')
         plt.subplot(414)
-        plt.plot(residual, label='Residuals')
+        plt.plot(self.residual, label='Residuals')
         plt.legend(loc='best')
         plt.tight_layout()
-        plt.savefig('ts_arima/Visualizations/decompose.png')
+        DirGen.create_dir(f'ts_analytics/Visualizations/{self.ticker}')
+        plt.savefig(f'ts_analytics/Visualizations/{self.ticker}/decompose.png')
         plt.clf()
-        ts_log_decompose = residual
+        ts_log_decompose = self.residual
         ts_log_decompose.dropna(inplace=True)
-        ARIMA.test_stationary(self, ts_log_decompose)
+        return ts_log_decompose
         
     def pacf(self):
         lag_acf = acf(self.ts_log_diff, nlags=20)
