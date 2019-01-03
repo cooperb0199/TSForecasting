@@ -101,12 +101,12 @@ class Trend:
         plt.axhline(y=1.96/np.sqrt(len(self.ts_log_diff)),linestyle='--',color='gray')
         plt.title('Partial Autocorrelation Function')
         plt.tight_layout()
-        plt.savefig('ts_arima/Visualizations/pacf.png')
+        plt.savefig(f'ts_analytics/Visualizations/{self.ticker}/pacf.png')
         plt.clf()
         
     def findac(self, ts):
         autocorrelation_plot(ts)
-        plt.savefig('ts_arima/Visualizations/ac.png')
+        plt.savefig('ts_analytics/Visualizations/ac.png')
         plt.clf()
         
     def testStationarity(self, ts):

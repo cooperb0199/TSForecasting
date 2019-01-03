@@ -24,9 +24,8 @@ ticker = 'UPS'
 
 factory = TSDF_Factory(ticker)
 data = factory.createTSDF()
-train, test = factory.createTSTT()
-ctrain = train['close']
-ctest = test['close']
+ctrain, ctest = factory.createTSTT(data['close'])
+
 
 # Insert values for empty days
 ctrain = ctrain.interpolate(method='linear')
@@ -89,8 +88,14 @@ rollingStats.find_rolling(ts_log_decompose, 'decompose')
 rollingStats.find_rolling(trend.residual, 'residual')
 df.perf_df_test(trend.residual)
 
+trend.pacf()
+
 #for item in diffModels.keys():
 #    Arima.makeprediction(ctrain, ctest, item, diffModels[item][0], diffModels[item][1], diffModels[item][2])
+
+ctrain, ctest = factory.createTSTT(datasetLogShifting)
+arima = Arima(datasetLogShifting, ticker)
+arima.makeprediction(ctrain, ctest, 'Custom', 2,1,2)
 
 
 #arimaModel = Arima(dailyClosing)

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
-import os
-
 import pandas as pd
+import numpy as np
+
 
 from alpha_vantage_api.av import AV
 
@@ -20,14 +20,29 @@ class TSDF_Factory:
         data.index = data.date
         data = data.resample('D').mean()
         data = data.interpolate(method='linear')
+        data.fillna(data.mean())
+        self.data = data
+        self.create_tslog()
         return data
-    
 
-    def createTSTT(self):
+    def createTSTT(self, ts):
         """Creates a training and test set on data
         """
-        data = self.createTSDF()
-        size = int(len(data) * 0.80)
-        train, test = data[0:size], data[size:len(data)]
+        size = int(len(ts) * 0.80)
+        train, test = ts[0:size], ts[size:len(ts)]
+        train.dropna(inplace=True)
+        test.dropna(inplace=True)
         return train, test
 
+    def create_tslog(self):
+        self.ts_log = np.log(self.data['close'])
+        self.ts_log_diff = self.ts_log - self.ts_log.shift()
+        self.ts_log_diff = self.ts_log_diff.fillna(self.ts_log_diff.mean())
+        self.ts_log_diff = self.ts_log_diff.mask(self.ts_log_diff == 0, self.ts_log_diff.mean())
+        
+        self.ts_log = self.ts_log.fillna(self.ts_log.mean())
+        self.ts_log = self.ts_log.mask(self.ts_log == 0, self.ts_log.mean())
+
+#        
+#tsFact = TSDF_Factory('UPS')
+#tsFact.createTSDF()
