@@ -21,6 +21,7 @@ class Arima:
         self.ticker = ticker
         DirGen.create_dir(f'ts_forecast/Visualizations/{ticker}/')
     
+    
     def test_stationary(self):
         #Determine rolling statistics
         rolmean = pd.Series(self.ts).rolling(window = 200).mean()
@@ -44,6 +45,7 @@ class Arima:
             dfoutput['Critical Value (%s)' %key] = value
         print(dfoutput)
         
+        
     def create_arima(self, ts, p, d, q):
         #fit model
         model = ARIMA(ts, order=(p,d,q))
@@ -58,30 +60,60 @@ class Arima:
         plt.savefig('ts_arima/Visualizations/redensity.png')
         plt.clf()
         print(residuals.describe())
-        
-    def fnd_resid_frm_arima(self, ts, p, d , q):
+      
+    '''      
+    def fit(self, ts, p, d , q):
         model = ARIMA(ts.ts_log, order=(p,d,q))
         model_fit = model.fit(disp=-1)
+        print(model_fit.summary())
+        tslog = ts.ts_log
+        model_vs_logdiff = model_fit.fittedvalues - ts.ts_log_diff
+        model_vs_logdiff.dropna(inplace=True)
         plt.plot(ts.ts_log_diff)
         plt.plot(model_fit.fittedvalues, color='red')
-        tslog = ts.ts_log
-#        modelfit = model_fit.fittedvalues
-        num1 = model_fit.fittedvalues - ts.ts_log_diff
-        num1.dropna(inplace=True)
-        plt.title('RSS: %.4f'% sum(num1**2))
+        plt.title('RSS: %.4f'% sum(model_vs_logdiff**2))
         plt.savefig(f'ts_forecast/Visualizations/{self.ticker}/arimaResid.png')
-        modelfit_cumsum = model_fit.fittedvalues.cumsum()
-        print(modelfit_cumsum.head())
-        predictions_ARIMA_log = pd.Series(tslog.ix[0],index=tslog.index)
-        logvaluetest = predictions_ARIMA_log #TODO debug
-        predictions_ARIMA_log = predictions_ARIMA_log.add(modelfit_cumsum,fill_value=0)
-        print(predictions_ARIMA_log.head())
         plt.clf()
-        predictions_ARIMA = np.exp(predictions_ARIMA_log)
+        predictions_ARIMA = self.untransform(model_fit, tslog)
         plt.plot(ts.data['close'])
         plt.plot(predictions_ARIMA)
+        plt.savefig(f'ts_forecast/Visualizations/{self.ticker}/predictvsactual')
         plt.clf()
-        model_fit.plot_predict(1,10625)
+        
+        error = mean_squared_error(predictions_ARIMA, ts.data['close'])
+        print(error)
+        model_fit.plot_predict(1,40)
+        plt.savefig(f'ts_forecast/Visualizations/{self.ticker}/predictionwconf.png')
+    '''
+        
+    def fit(self, ts, p, d , q, amountOfDays):
+        ratio = amountOfDays / len(ts.ts_log) 
+        ctrain, ctest = ts.createTSTT(ts.ts_log, ratio= 1 - ratio)
+        model = ARIMA(ctrain, order=(p,d,q))
+        model_fit = model.fit(disp=-1)
+        print(model_fit.summary())
+        model_vs_logdiff = model_fit.fittedvalues - ts.ts_log_diff
+        model_vs_logdiff.dropna(inplace=True)
+        plt.plot(ts.ts_log_diff)
+        plt.plot(model_fit.fittedvalues, color='red')
+        plt.title('RSS: %.4f'% sum(model_vs_logdiff**2))
+        plt.savefig(f'ts_forecast/Visualizations/{self.ticker}/arimaResid.png')
+        plt.clf()
+        predictions_ARIMA = self.untransform(model_fit.fittedvalues, ctrain)
+        plt.plot(ts.data['close'])
+        plt.plot(predictions_ARIMA)
+        plt.savefig(f'ts_forecast/Visualizations/{self.ticker}/predictvsactual')
+        plt.clf()
+        output = model_fit.forecast(len(ctest))
+        forecastpredictions = pd.Series(np.exp(output[0]), index=ctest.index)
+        actualvalues = np.exp(ctest)
+        error = mean_squared_error(forecastpredictions, actualvalues)
+        plt.plot(actualvalues)
+        plt.plot(forecastpredictions)
+        plt.savefig(f'ts_forecast/Visualizations/{self.ticker}/predictvsactual111')
+        plt.clf()
+        print(error)
+        model_fit.plot_predict(1,40)
         plt.savefig(f'ts_forecast/Visualizations/{self.ticker}/predictionwconf.png')
         
     
@@ -95,7 +127,7 @@ class Arima:
             try:
                 	model = ARIMA(history, order=(lag,diff,ma))
                 	model_fit = model.fit(disp=-1)
-                	output = model_fit.forecast()
+                	output = model_fit.forecast(10)
                 	yhat = output[0]
                 	predictions[t] = yhat
                 	obs = test[t]
@@ -123,12 +155,18 @@ class Arima:
         plt.savefig(f'ts_forecast/Visualizations/{self.ticker}/{filename}predictvsactual.png')
         plt.clf()
         
-
+    def untransform(self, modelfit, tslog):
+        modelfit_cumsum = modelfit.cumsum()
+        predictions_ARIMA_log = pd.Series(tslog.iloc[0],index=tslog.index)
+        predictions_ARIMA_log = predictions_ARIMA_log.add(modelfit_cumsum,fill_value=0)
+        predictions_ARIMA = np.exp(predictions_ARIMA_log)
+        return predictions_ARIMA
 
 ticker = 'UPS'
 factory = TSDF_Factory(ticker)
-data = factory.createTSDF()      
-ctrain, ctest = factory.createTSTT(factory.ts_log) 
+data = factory.createTSDF()    
+ctrain, ctest = factory.createTSTT(factory.ts_log)
 arima = Arima(data, ticker)
 #arima.makeprediction(ctrain, ctest, 'tst', 2, 1, 2)
-arima.fnd_resid_frm_arima(factory,2,1,2)
+arima.fit(factory,2,1,2, 40)
+#arima.create_arima(factory.ts_log, 2,1,2)

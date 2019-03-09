@@ -88,6 +88,7 @@ rollingStats.find_rolling(ts_log_decompose, 'decompose')
 rollingStats.find_rolling(trend.residual, 'residual')
 df.perf_df_test(trend.residual)
 
+# Find the auto correlative and partial autocorrelative functions
 trend.pacf()
 
 #for item in diffModels.keys():

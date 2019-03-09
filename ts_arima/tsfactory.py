@@ -25,10 +25,9 @@ class TSDF_Factory:
         self.create_tslog()
         return data
 
-    def createTSTT(self, ts):
-        """Creates a training and test set on data
-        """
-        size = int(len(ts) * 0.80)
+    def createTSTT(self, ts, ratio=0.80):
+        """Creates a training and test set on data"""
+        size = int(len(ts) * ratio)
         train, test = ts[0:size], ts[size:len(ts)]
         train.dropna(inplace=True)
         test.dropna(inplace=True)
