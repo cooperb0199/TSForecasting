@@ -11,9 +11,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-from ts_arima.tsfactory import TSDF_Factory
 from utils.dir_generator import DirGen
-    
+from ts_arima.tsfactory import TSDF_Factory
+
 
 class Arima:
     def __init__(self, timeseries, ticker):
